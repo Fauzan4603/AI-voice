@@ -338,10 +338,8 @@
             } else {
                 const targetSec = parseFloat(targetDurationInput.value);
                 if (targetSec && targetSec > 0) {
-                    // Estimate normal reading speed: ~15 characters per second
                     const estimatedNormalSec = text.length / 15;
                     effectiveSpeed = estimatedNormalSec / targetSec;
-                    // Clamp between 0.5x and 2.0x limits of model
                     if (effectiveSpeed < 0.5) effectiveSpeed = 0.5;
                     if (effectiveSpeed > 2.0) effectiveSpeed = 2.0;
                 }
@@ -387,10 +385,20 @@
                     model: "gemini-2.5-flash-preview-tts"
                 };
 
-                const apiKey = window.prompt('Enter your Gemini API key:');
+                // Ambil API Key dari environment atau simpan otomatis ke localStorage browser
+                let apiKey = window.GEMINI_API_KEY || window.API_KEY || localStorage.getItem('gemini_api_key');
+
+                if (!apiKey) {
+                    apiKey = window.prompt('Masukkan Gemini API Key Anda:');
+                    if (apiKey) {
+                        localStorage.setItem('gemini_api_key', apiKey.trim());
+                    }
+                }
+
                 if (!apiKey) {
                     throw new Error('Gemini API key is required.');
                 }
+
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
 
                 const response = await fetch(apiUrl, {
